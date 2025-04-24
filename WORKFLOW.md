@@ -254,18 +254,15 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Verify and Fix Auth Route Imports
+### 2025-04-24: Attempt Vercel Cache Bust
 
 **Files Updated:**
-- `jobtracker/app/api/auth/google/callback/route.ts`: Verified and corrected import syntax and paths to use `@/lib/` alias.
-- `jobtracker/app/api/auth/google/route.ts`: Verified and corrected import syntax and paths to use `@/lib/` alias.
-- `jobtracker/app/api/auth/[...nextauth]/route.ts`: Verified imports use `@/lib/` alias.
-- `jobtracker/app/api/auth/google/authorize/route.ts`: Verified imports use `@/lib/` alias.
+- `jobtracker/package.json`: Added a timestamped echo command to the `vercel-build` script.
 
 **Reasoning:**
-- Previous attempts to fix import paths/syntax in these files failed to save correctly before commit, as confirmed by Vercel build logs.
-- This attempt included read-back verification after each edit to ensure changes were applied before committing.
-- Addresses the specific "Unterminated string constant" and incorrect path errors seen in Vercel build commit `dc19567`.
+- Despite the latest commit containing verified code fixes for auth routes, Vercel builds are still failing with errors indicating the old, broken code is being used.
+- This points to a potential persistent caching issue on Vercel's side.
+- Modifying the build script itself is an attempt to invalidate Vercel's build step cache and force it to use the actual latest code from the commit.
 
 ## Current Development Plan
 

@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "build": "next build",
-    "vercel-build": "prisma generate && next build",
+    "vercel-build": "echo \"Cache bust attempt $(date)\" && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "seed": "node --require esbuild-register prisma/seed.ts",
