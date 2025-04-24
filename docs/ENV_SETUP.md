@@ -113,6 +113,40 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 3. Rotate secrets regularly, especially after team member changes
 4. Use different secrets for development and production
 
+## GitHub and Environment Variables
+
+When working with a GitHub repository:
+
+1. **Repository Secrets**:
+   - For GitHub Actions workflows, use repository secrets in your repository settings
+   - Go to Settings > Secrets and Variables > Actions > New repository secret
+
+2. **Environment Variables in GitHub Actions**:
+   ```yaml
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         - name: Build and Test
+           env:
+             DATABASE_URL: ${{ secrets.DATABASE_URL }}
+             JWT_SECRET: ${{ secrets.JWT_SECRET }}
+           run: npm test
+   ```
+
+3. **Environment Protection Rules**:
+   - For production deployments, set up environment protection rules in GitHub
+   - Require approval before workflows use production secrets
+
+4. **Using .env.example**:
+   - Always keep .env.example updated with all required variables (but not actual values)
+   - New team members can copy this file to create their own .env.local
+
+5. **.gitignore Configuration**:
+   - Our .gitignore already contains all environment files except .env.example
+   - Double-check that .env and .env.* are in .gitignore before pushing
+
 ## Troubleshooting Environment Variables
 
 ### Variables Not Loading
