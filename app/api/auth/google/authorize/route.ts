@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getAuthUrl } from 'app/lib/google';
-import { apiSuccess, apiError } from 'app/lib/utils/api';
+import { getAuthUrl } from '@/lib/google';
+import { apiSuccess, apiError } from '@/lib/utils/api';
 
 /**
  * GET handler to generate Google OAuth authorization URL

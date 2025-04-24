@@ -3,6 +3,7 @@
  */
 const nextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ['bcrypt'],
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000']

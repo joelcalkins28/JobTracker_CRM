@@ -233,7 +233,7 @@ This document tracks all changes made to the JobTracker CRM project over time.
 - `.gitignore`: Configured for Next.js project with appropriate exclusions
 - `README.md`: Comprehensive project documentation with setup instructions
 - `.env.example`: Example environment variables file
-- `next.config.js`: Updated configuration for Next.js 15
+- `next.config.ts`: Updated configuration for Next.js 15
 - `docs/GITHUB_SETUP.md`: Guide for GitHub repository management
 - `docs/ENV_SETUP.md`: Updated with GitHub environment variable handling
 - `docs/PROJECT_STATUS.md`: Updated project status with version control information
@@ -254,15 +254,23 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Fix Import Syntax Errors
+### 2025-04-24: Consolidate Config and Fix Aliases
 
 **Files Updated:**
-- `jobtracker/app/api/auth/google/callback/route.ts`: Corrected unterminated string constants in import statements and updated paths to use the standardized `@/lib/` alias.
-- `jobtracker/app/api/auth/google/route.ts`: Corrected unterminated string constants in import statements and updated paths to use the standardized `@/lib/` alias.
+- `jobtracker/next.config.ts`: Added `serverExternalPackages: ['bcrypt']`. Ensured this is the only active Next.js config.
+- `jobtracker/app/api/auth/[...nextauth]/route.ts`: Updated imports to use standardized `@/lib/` alias.
+- `jobtracker/app/api/auth/google/authorize/route.ts`: Updated imports to use standardized `@/lib/` alias.
+
+**Files Deleted:**
+- `jobtracker/next.config.js`: Removed conflicting Next.js config file.
 
 **Reasoning:**
-- Previous refactoring missed updating import paths in these specific API route files and introduced syntax errors (missing closing quotes).
-- This fix addresses the syntax errors and ensures consistency with the standardized path aliases.
+- Resolved conflicts and errors caused by having both `next.config.js` and `next.config.ts`.
+- Corrected Next.js configuration options for v15.
+- Fixed remaining incorrect import aliases (`app/lib/...` instead of `@/lib/...`) identified during local testing.
+- Addresses potential causes for local `Module not found` errors and `Invalid next.config.js` warnings.
+
+**Note:** Persistent local errors related to Prisma client initialization and cache (`.next/cache`) might require manually running `npx prisma generate` and deleting the `.next` folder before `npm run dev`.
 
 ## Current Development Plan
 
