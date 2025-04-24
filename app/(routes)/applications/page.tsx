@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/components/common/AppLayout';
-import { ApplicationList } from '@/components/applications/ApplicationList';
-import { Button } from '@/components/ui/button';
-import { FilterBar } from '@/components/applications/FilterBar';
-import { ApplicationWithDocuments, ApplicationStatus } from '@/lib/types';
-import { apiGet } from '@/lib/utils/api';
+import ApplicationList from '@/components/applications/ApplicationList';
+import Button from '@/components/common/Button';
+import FilterBar from '@/components/applications/FilterBar';
+import { ApplicationWithDocuments } from '@/lib/types';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { ApplicationForm } from '@/components/applications/ApplicationForm';
 
 /**
  * Applications list page component
@@ -73,22 +73,38 @@ export default function ApplicationsPage() {
     }
   };
 
+  const handleAddSuccess = () => {
+    refreshApplications();
+    toast.success('Application added successfully!');
+  };
+  
+  const handleDeleteSuccess = async () => {
+    await refreshApplications();
+    toast.success('Application deleted successfully!');
+  };
+
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Job Applications</h1>
-        
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-          </div>
-        ) : (
-          <ApplicationList 
-            applications={applications} 
-            onDeleteSuccess={refreshApplications}
-          />
-        )}
+    <AppLayout title="Job Applications">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
+        <Button 
+          onClick={() => setShowAddForm(true)}
+          variant="primary"
+        >
+          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+          New Application
+        </Button>
       </div>
+
+      <Suspense fallback={<div>Loading applications...</div>}>
+        {isLoading && <div>Loading applications...</div>} 
+        {!isLoading && (
+          <ApplicationList 
+             applications={applications} 
+             onDeleteSuccess={handleDeleteSuccess} 
+           />
+        )}
+      </Suspense>
     </AppLayout>
   );
 } 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from 'app/lib/db';
-import { apiResponse } from 'app/lib/utils/api';
+import { prisma } from '@/lib/prisma';
+import { apiError, apiSuccess } from '@/lib/utils/api';
 import { getAuthenticatedUser } from 'app/lib/utils/auth';
 
 /**
@@ -11,41 +11,32 @@ export async function GET(request: NextRequest) {
     // Verify authentication
     const user = await getAuthenticatedUser(request);
     if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
+      return apiError('Unauthorized', 401);
     }
 
-    // Find all unique job titles from contacts that belong to this user
-    const titles = await prisma.contact.findMany({
+    // Fetch distinct non-null positions from the Contact model
+    const jobTitles = await prisma.contact.findMany({
       where: {
         userId: user.id,
-        jobTitle: {
-          not: null
-        }
+        position: {
+          not: null,
+        },
       },
       select: {
-        jobTitle: true
+        position: true,
       },
-      distinct: ['jobTitle']
+      distinct: ['position'],
     });
 
-    // Extract job titles and filter out any null values
-    const jobTitles = titles
-      .map(t => t.jobTitle)
-      .filter(Boolean)
+    // Extract the position strings
+    const uniqueTitles = jobTitles
+      .map(contact => contact.position)
+      .filter((title): title is string => title !== null)
       .sort();
 
-    return apiResponse({
-      status: 200,
-      data: jobTitles
-    });
+    return apiSuccess(uniqueTitles);
   } catch (error) {
     console.error('Error fetching job titles:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to fetch job titles'
-    });
+    return apiError('Failed to fetch job titles', 500);
   }
 } 

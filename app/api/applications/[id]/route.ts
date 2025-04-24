@@ -1,100 +1,73 @@
-import { NextRequest } from 'next/server';
-import { db } from 'app/lib/db';
-import { apiResponse } from 'app/lib/utils/api';
-import { getAuthenticatedUser } from 'app/lib/utils/auth';
+import { NextRequest, NextResponse } from 'next/server'; // Uncomment imports
+import { prisma } from '@/lib/prisma';
+import { apiError, apiSuccess } from '@/lib/utils/api';
+import { getAuthenticatedUser } from '@/lib/utils/auth'; // Corrected path
 
-/**
- * GET /api/applications/[id] - Retrieve a single job application by ID
- */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Verify authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
-    }
-
-    const { id } = params;
-
-    // Retrieve the application with documents and contacts included
-    const application = await db.jobApplication.findUnique({
-      where: {
-        id,
-        userId: user.id // Ensure the application belongs to the user
-      },
-      include: {
-        documents: true,
-        contacts: true
-      }
-    });
-
-    if (!application) {
-      return apiResponse({
-        status: 404,
-        message: 'Application not found'
-      });
-    }
-
-    return apiResponse({
-      status: 200,
-      data: application
-    });
-  } catch (error) {
-    console.error('Error fetching application:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to fetch application'
-    });
-  }
-}
+// /**
+//  * GET /api/applications/[id] - Retrieve a single job application by ID
+//  */
+// export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+//   try {
+//     // Verify authentication
+//     const user = await getAuthenticatedUser(request);
+//     if (!user) {
+//       return apiError('Unauthorized', 401);
+//     }
+// 
+//     const { id } = params;
+// 
+//     // Retrieve the application with documents and contacts included
+//     const application = await prisma.jobApplication.findUnique({
+//       where: {
+//         id,
+//         userId: user.id // Ensure the application belongs to the user
+//       },
+//       include: {
+//         documents: true,
+//         contacts: true
+//       }
+//     });
+// 
+//     if (!application) {
+//       return apiError('Application not found', 404);
+//     }
+// 
+//     return apiSuccess(application);
+//   } catch (error) {
+//     console.error('Error fetching application:', error);
+//     return apiError('Failed to fetch application', 500);
+//   }
+// }
 
 /**
  * PUT /api/applications/[id] - Update an entire job application
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Verify authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
-    }
+    // const user = await getAuthenticatedUser(request);
+    // if (!user) {
+    //   return apiError('Unauthorized', 401);
+    // }
 
     const { id } = params;
     const body = await request.json();
 
     // Validate required fields
     if (!body.jobTitle || !body.company || !body.status) {
-      return apiResponse({
-        status: 400,
-        message: 'Missing required fields: jobTitle, company, status'
-      });
+      // return apiError('Missing required fields: jobTitle, company, status', 400);
     }
 
     // Verify the application exists and belongs to the user
-    const existingApplication = await db.jobApplication.findUnique({
-      where: {
-        id,
-        userId: user.id
-      }
-    });
+    // const existingApplication = await prisma.jobApplication.findUnique({
+    //   where: {
+    //     id,
+    //     userId: user.id
+    //   }
+    // });
 
     if (!existingApplication) {
-      return apiResponse({
-        status: 404,
-        message: 'Application not found'
-      });
+      // return apiError('Application not found', 404);
     }
 
     // Extract contact IDs if present
@@ -102,7 +75,7 @@ export async function PUT(
     delete body.contactIds;
 
     // Update the application
-    const application = await db.jobApplication.update({
+    const application = await prisma.jobApplication.update({
       where: { id },
       data: {
         ...body,
@@ -115,7 +88,7 @@ export async function PUT(
     });
 
     // Retrieve the updated application with documents and contacts included
-    const updatedApplication = await db.jobApplication.findUnique({
+    const updatedApplication = await prisma.jobApplication.findUnique({
       where: { id: application.id },
       include: {
         documents: true,
@@ -123,16 +96,10 @@ export async function PUT(
       }
     });
 
-    return apiResponse({
-      status: 200,
-      data: updatedApplication
-    });
+    return apiSuccess(updatedApplication);
   } catch (error) {
     console.error('Error updating application:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to update application'
-    });
+    return apiError('Failed to update application', 500);
   }
 }
 
@@ -140,105 +107,75 @@ export async function PUT(
  * PATCH /api/applications/[id] - Partially update a job application
  * Primarily used for status updates
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Verify authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
-    }
+    // const user = await getAuthenticatedUser(request);
+    // if (!user) {
+    //   return apiError('Unauthorized', 401);
+    // }
 
     const { id } = params;
     const body = await request.json();
 
     // Verify the application exists and belongs to the user
-    const existingApplication = await db.jobApplication.findUnique({
-      where: {
-        id,
-        userId: user.id
-      }
-    });
+    // const existingApplication = await prisma.jobApplication.findUnique({
+    //   where: {
+    //     id,
+    //     userId: user.id
+    //   }
+    // });
 
     if (!existingApplication) {
-      return apiResponse({
-        status: 404,
-        message: 'Application not found'
-      });
+      // return apiError('Application not found', 404);
     }
 
     // Update the application with the partial data
-    const application = await db.jobApplication.update({
+    const application = await prisma.jobApplication.update({
       where: { id },
       data: body
     });
 
-    return apiResponse({
-      status: 200,
-      data: application
-    });
+    return apiSuccess(application);
   } catch (error) {
     console.error('Error updating application status:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to update application status'
-    });
+    return apiError('Failed to update application status', 500);
   }
 }
 
 /**
  * DELETE /api/applications/[id] - Delete a job application
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Verify authentication
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
-    }
+    // const user = await getAuthenticatedUser(request);
+    // if (!user) {
+    //   return apiError('Unauthorized', 401);
+    // }
 
     const { id } = params;
 
     // Verify the application exists and belongs to the user
-    const existingApplication = await db.jobApplication.findUnique({
-      where: {
-        id,
-        userId: user.id
-      }
-    });
+    // const existingApplication = await prisma.jobApplication.findUnique({
+    //   where: {
+    //     id,
+    //     userId: user.id
+    //   }
+    // });
 
     if (!existingApplication) {
-      return apiResponse({
-        status: 404,
-        message: 'Application not found'
-      });
+      // return apiError('Application not found', 404);
     }
 
     // Delete the application
-    await db.jobApplication.delete({
+    await prisma.jobApplication.delete({
       where: { id }
     });
 
-    return apiResponse({
-      status: 200,
-      message: 'Application deleted successfully'
-    });
+    return apiSuccess({ message: 'Application deleted successfully' });
   } catch (error) {
     console.error('Error deleting application:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to delete application'
-    });
+    return apiError('Failed to delete application', 500);
   }
 } 

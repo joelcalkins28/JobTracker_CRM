@@ -1,113 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from 'app/lib/db';
-import { apiResponse } from 'app/lib/utils/api';
-import { getAuthenticatedUser } from 'app/lib/utils/auth';
-import { DocumentType } from 'app/lib/types';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { prisma } from '@/lib/prisma';
+import { apiError, apiSuccess } from '@/lib/utils/api';
+import { getAuthenticatedUser } from '@/lib/utils/auth';
 
 /**
  * POST /api/documents - Upload documents for a job application
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
     const user = await getAuthenticatedUser(request);
     if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
+      return apiError('Unauthorized', 401);
     }
-    
-    // Parse the multipart form data
-    const formData = await request.formData();
-    const applicationId = formData.get('applicationId') as string;
-    const files = formData.getAll('files') as File[];
-    const types = formData.getAll('types') as string[];
-    
-    // Validate required fields
-    if (!applicationId) {
-      return apiResponse({
-        status: 400,
-        message: 'Missing required field: applicationId'
-      });
+
+    const body = await request.json();
+    const { applicationId, name, type, fileUrl } = body;
+
+    if (!applicationId || !name || !type) {
+      return apiError('Missing required fields: applicationId, name, type', 400);
     }
-    
-    if (files.length === 0) {
-      return apiResponse({
-        status: 400,
-        message: 'No files uploaded'
-      });
-    }
-    
-    // Verify the application exists and belongs to the user
-    const application = await db.jobApplication.findUnique({
-      where: {
-        id: applicationId,
-        userId: user.id
-      }
+
+    // Check if application exists and belongs to user
+    const application = await prisma.jobApplication.findUnique({
+      where: { id: applicationId },
     });
-    
-    if (!application) {
-      return apiResponse({
-        status: 404,
-        message: 'Application not found'
-      });
+
+    if (!application || application.userId !== user.id) {
+      return apiError('Application not found or access denied', 404);
     }
-    
-    // Create uploads directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    
-    try {
-      await writeFile(join(uploadDir, '.placeholder'), '');
-    } catch (error) {
-      // Create the directory if it doesn't exist
-      const { mkdir } = require('fs/promises');
-      await mkdir(uploadDir, { recursive: true });
-    }
-    
-    // Process each file
-    const createdDocuments = [];
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const type = types[i] || DocumentType.OTHER;
-      
-      // Generate a unique filename
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExtension}`;
-      const filePath = join(uploadDir, fileName);
-      
-      // Save the file to disk
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      await writeFile(filePath, buffer);
-      
-      // Create a document record in the database
-      const document = await db.document.create({
-        data: {
-          name: file.name,
-          type: type,
-          fileUrl: `/uploads/${fileName}`,
-          applicationId: applicationId
-        }
-      });
-      
-      createdDocuments.push(document);
-    }
-    
-    return apiResponse({
-      status: 201,
-      data: createdDocuments,
-      message: `${createdDocuments.length} document(s) uploaded successfully`
+
+    // Create document record (fileUrl is optional or placeholder)
+    const document = await prisma.document.create({
+      data: {
+        name,
+        type,
+        fileUrl: fileUrl || 'placeholder_url', // Use provided URL or a placeholder
+        applicationId: application.id,
+      },
     });
+
+    return apiSuccess(document, 201);
   } catch (error) {
-    console.error('Error uploading documents:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to upload documents'
-    });
+    console.error('Error creating document record:', error);
+    return apiError('Failed to create document record', 500);
   }
 } 

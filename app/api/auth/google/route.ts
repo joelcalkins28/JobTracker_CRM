@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthUrl } from 'app/lib/google";
-import { prisma } from 'app/lib/prisma";
-import { generateToken } from 'app/lib/auth";
+import { getAuthUrl } from "@/lib/google";
+import { prisma } from "@/lib/prisma";
+import { generateToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { getCurrentUser } from 'app/lib/auth';
-import { v4 as uuidv4 } from 'uuid';
+import { getCurrentUser } from "@/lib/auth";
+import { v4 as uuidv4 } from "uuid";
+import { apiSuccess, apiError } from "@/lib/utils/api";
 
 /**
  * Initiates the Google OAuth flow by generating and redirecting to an authorization URL
@@ -14,20 +15,24 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export async function GET(request: NextRequest) {
   try {
-    // State parameter to prevent CSRF attacks
-    const state = Math.random().toString(36).substring(2, 15);
-    
-    // Get the authorization URL from the Google client library
+    const state = uuidv4();
     const authUrl = getAuthUrl(state);
-    
-    // Redirect to Google's authorization page
-    return NextResponse.redirect(authUrl);
+    const response = NextResponse.redirect(authUrl);
+
+    // Set the state in a cookie on the response
+    response.cookies.set('oauth_state', state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 5, // 5 minutes
+    });
+
+    return response;
+
   } catch (error) {
-    console.error("Failed to initiate Google OAuth:", error);
-    return NextResponse.json(
-      { error: "Failed to initiate Google authentication" },
-      { status: 500 }
-    );
+    console.error('Error generating Google auth URL:', error);
+    // Return the apiError response directly
+    return apiError('Failed to generate authorization URL', 500);
   }
 }
 

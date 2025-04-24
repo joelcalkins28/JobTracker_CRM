@@ -1,6 +1,6 @@
-import { NextRequest } from 'next/server';
-import prisma from 'app/lib/db';
-import { apiResponse } from 'app/lib/utils/api';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { apiError, apiSuccess } from '@/lib/utils/api';
 import { getAuthenticatedUser } from 'app/lib/utils/auth';
 import { ApplicationStatus } from 'app/lib/types';
 
@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
     // Verify authentication
     const user = await getAuthenticatedUser(request);
     if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
+      return apiError('Unauthorized', 401);
     }
 
     // Get query parameters
@@ -59,16 +56,10 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return apiResponse({
-      status: 200,
-      data: applications
-    });
+    return apiSuccess(applications);
   } catch (error) {
     console.error('Error fetching applications:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to fetch applications'
-    });
+    return apiError('Failed to fetch applications', 500);
   }
 }
 
@@ -80,10 +71,7 @@ export async function POST(request: NextRequest) {
     // Verify authentication
     const user = await getAuthenticatedUser(request);
     if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
+      return apiError('Unauthorized', 401);
     }
 
     // Parse the request body
@@ -91,10 +79,7 @@ export async function POST(request: NextRequest) {
     
     // Validate required fields
     if (!body.jobTitle || !body.company || !body.status) {
-      return apiResponse({
-        status: 400,
-        message: 'Missing required fields: jobTitle, company, status'
-      });
+      return apiError('Missing required fields: jobTitle, company, status', 400);
     }
 
     // Extract contact IDs if present
@@ -122,15 +107,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return apiResponse({
-      status: 201,
-      data: createdApplication
-    });
+    return apiSuccess(createdApplication, 201);
   } catch (error) {
     console.error('Error creating application:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to create application'
-    });
+    return apiError('Failed to create application', 500);
   }
 } 

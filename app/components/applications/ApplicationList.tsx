@@ -6,7 +6,7 @@ import { CalendarIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon, DocumentTextIco
 import { toast } from 'react-hot-toast';
 import { ApplicationWithDocuments, ApplicationStatus } from '@/lib/types';
 import FilterBar from './FilterBar';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/common/Button';
 import { format } from 'date-fns';
 
 /**
@@ -52,12 +52,13 @@ const formatRelativeDate = (date: Date): string => {
 
 interface ApplicationListProps {
   applications: ApplicationWithDocuments[];
+  onDeleteSuccess: () => void;
 }
 
 /**
  * Component for displaying and filtering job applications
  */
-export default function ApplicationList({ applications }: ApplicationListProps) {
+export default function ApplicationList({ applications, onDeleteSuccess }: ApplicationListProps) {
   const [filteredApplications, setFilteredApplications] = useState<ApplicationWithDocuments[]>([]);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<'dateApplied' | 'company' | 'status'>('dateApplied');
@@ -112,6 +113,25 @@ export default function ApplicationList({ applications }: ApplicationListProps) 
     } else {
       setSortBy(field);
       setSortOrder('asc');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this application?')) {
+      return;
+    }
+    try {
+      const response = await fetch(`/api/applications/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast.success('Application deleted successfully!');
+        onDeleteSuccess();
+      } else {
+        throw new Error(result.error || 'Failed to delete application');
+      }
+    } catch (error: any) {
+      toast.error(`Error deleting application: ${error.message}`);
+      console.error("Delete error:", error);
     }
   };
 
@@ -232,10 +252,17 @@ export default function ApplicationList({ applications }: ApplicationListProps) 
                           <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                             <Link
                               href={`/applications/${application.id}`}
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
                             >
                               View<span className="sr-only">, {application.jobTitle}</span>
                             </Link>
+                            <button
+                              onClick={() => handleDelete(application.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <TrashIcon className="h-5 w-5 inline" />
+                              <span className="sr-only">Delete</span>
+                            </button>
                           </td>
                         </tr>
                       ))

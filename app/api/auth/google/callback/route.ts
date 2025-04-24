@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { cookies } from "next/headers";
-import { prisma } from 'app/lib/prisma";
-import { generateToken } from 'app/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { generateToken } from "@/lib/auth";
+import { apiError, apiSuccess } from "@/lib/utils/api";
 
 /**
  * Handles the callback from Google OAuth and processes the authorization code
@@ -78,21 +79,22 @@ export async function GET(request: NextRequest) {
     }
     
     // Generate JWT for authentication
-    const jwt = generateToken({ userId: user.id });
+    const sessionToken = generateToken({ userId: user.id, email: user.email });
     
     // Set the token in a cookie
-    cookies().set("token", jwt, {
+    const redirectUrl = new URL('/dashboard', request.url);
+    const response = NextResponse.redirect(redirectUrl);
+    response.cookies.set('session_token', sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
       maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/"
     });
-    
-    // Redirect to dashboard
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  } catch (error) {
+    return response;
+  } catch (error: any) {
     console.error("Google OAuth callback error:", error);
-    return NextResponse.redirect(new URL("/login?error=auth_error", request.url));
+    // Return the response object directly when redirecting on error
+    const errorRedirectUrl = new URL('/auth/error?error=OAuthCallbackFailed', request.url);
+    return NextResponse.redirect(errorRedirectUrl);
   }
 } 

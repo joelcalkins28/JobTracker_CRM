@@ -283,7 +283,7 @@ const config = {
     "db"
   ],
   "activeProvider": "sqlite",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

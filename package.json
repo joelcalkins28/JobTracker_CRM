@@ -60,5 +60,21 @@
     "nock": "^14.0.4",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "A Customer Relationship Management (CRM) system designed for job seekers to track applications, manage contacts, and integrate with Google services.",
+  "main": "test-api.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelcalkins28/JobTracker_CRM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joelcalkins28/JobTracker_CRM/issues"
+  },
+  "homepage": "https://github.com/joelcalkins28/JobTracker_CRM#readme"
 }

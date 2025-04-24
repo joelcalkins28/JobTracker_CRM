@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from 'app/lib/db';
-import { apiResponse } from 'app/lib/utils/api';
+import { prisma } from '@/lib/prisma';
+import { apiError, apiSuccess } from '@/lib/utils/api';
 import { getAuthenticatedUser } from 'app/lib/utils/auth';
 
 /**
@@ -11,10 +11,7 @@ export async function GET(request: NextRequest) {
     // Verify authentication
     const user = await getAuthenticatedUser(request);
     if (!user) {
-      return apiResponse({
-        status: 401,
-        message: 'Unauthorized'
-      });
+      return apiError('Unauthorized', 401);
     }
 
     // Find all unique company names from contacts that belong to this user
@@ -37,15 +34,9 @@ export async function GET(request: NextRequest) {
       .filter(Boolean)
       .sort();
 
-    return apiResponse({
-      status: 200,
-      data: companyNames
-    });
+    return apiSuccess(companyNames);
   } catch (error) {
     console.error('Error fetching companies:', error);
-    return apiResponse({
-      status: 500,
-      message: 'Failed to fetch companies'
-    });
+    return apiError('Failed to fetch companies', 500);
   }
 } 
