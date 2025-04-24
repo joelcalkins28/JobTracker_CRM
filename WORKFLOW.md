@@ -254,6 +254,16 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
+### 2025-04-24: Fix Vercel Build Issues
+
+**Files Updated:**
+- `jobtracker/tsconfig.json`: Corrected the path alias for `@/app/components/*` to align with actual usage in import statements.
+- `jobtracker/next.config.js`: Renamed the `serverComponentsExternalPackages` key to `serverExternalPackages` to comply with the latest Next.js configuration standards and resolve build warnings.
+
+**Issues Resolved:**
+- Fixed "Module not found" errors during Vercel builds related to component imports (e.g., `ApplicationForm`, `AppLayout`, `ApplicationDetail`).
+- Resolved the `Invalid next.config.js options detected` warning regarding `serverComponentsExternalPackages`.
+
 ## Current Development Plan
 
 ### Phase 1: Job Application Tracking (Completed ✓)

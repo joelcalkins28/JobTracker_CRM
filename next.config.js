@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // External packages that need Node.js compatibility
-  serverComponentsExternalPackages: ['bcrypt'],
+  serverExternalPackages: ['bcrypt'],
   
   // Root config options
   skipMiddlewareUrlNormalize: true,
