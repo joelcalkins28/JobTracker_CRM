@@ -1,43 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthUrl } from 'app/lib/google';
-import { getCurrentUser } from 'app/lib/auth';
-import prisma from 'app/lib/prisma';
 import { google } from 'googleapis';
+import { getCurrentUser } from '@/lib/auth';
 
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/calendar/oauth/callback';
 
 /**
- * Initiates Google OAuth authorization flow
- * Redirects the user to Google's consent page
+ * Initiates the Google OAuth flow for calendar integration
+ * Redirects the user to Google's authorization page
  */
 export async function GET(request: NextRequest) {
   try {
-    // Verify user is authenticated
-    const user = await getCurrentUser(request);
+    // Verify the user is authenticated
+    const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.redirect(new URL('/login?error=unauthorized', request.url));
     }
-
-    // Generate the authorization URL with appropriate scopes
-    const authUrl = getAuthUrl();
-
-    // Store the user ID in the session to retrieve after callback
-    // In a production app, you would use a proper session or store a state token
-    const userId = user.id;
     
-    return NextResponse.json({
-      authUrl,
-      userId
-    });
-  } catch (error) {
-    console.error('OAuth initialization error:', error);
-    return NextResponse.json(
-      { error: 'Failed to initialize OAuth flow' },
-      { status: 500 }
+    // Initialize OAuth client
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_CALENDAR_REDIRECT_URI
     );
+    
+    // Generate authorization URL with required scopes
+    const scopes = [
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.events'
+    ];
+    
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      prompt: 'consent' // Force to show the consent screen to get refresh_token
+    });
+    
+    // Redirect to Google's authorization page
+    return NextResponse.redirect(new URL(authUrl));
+  } catch (error) {
+    console.error('Google Calendar OAuth authorization error:', error);
+    return NextResponse.redirect(new URL('/dashboard?error=google_auth_init_failed', request.url));
   }
 }
 

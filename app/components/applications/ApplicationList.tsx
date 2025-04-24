@@ -1,328 +1,255 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { 
-  PencilIcon, 
-  TrashIcon,
-  BuildingOfficeIcon,
-  MapPinIcon,
-  CalendarIcon,
-  CurrencyDollarIcon
-} from '@heroicons/react/24/outline';
-import { toast } from 'react-hot-toast';
-import Card from '../common/Card';
-import Button from '../common/Button';
-import { ApplicationWithDocuments, ApplicationStatus } from 'app/lib/types';
+import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ApplicationWithDocuments, ApplicationStatus } from '@/app/lib/types';
+import FilterBar from './FilterBar';
 
 /**
- * Props for the ApplicationList component
+ * Get CSS class based on application status
  */
+const getStatusColorClass = (status: string): string => {
+  switch (status) {
+    case ApplicationStatus.WISHLIST:
+      return 'bg-gray-200 text-gray-800';
+    case ApplicationStatus.APPLIED:
+      return 'bg-blue-200 text-blue-800';
+    case ApplicationStatus.PHONE_SCREEN:
+      return 'bg-purple-200 text-purple-800';
+    case ApplicationStatus.INTERVIEW:
+      return 'bg-indigo-200 text-indigo-800';
+    case ApplicationStatus.OFFER:
+      return 'bg-green-200 text-green-800';
+    case ApplicationStatus.REJECTED:
+      return 'bg-red-200 text-red-800';
+    case ApplicationStatus.ACCEPTED:
+      return 'bg-emerald-200 text-emerald-800';
+    case ApplicationStatus.WITHDRAWN:
+      return 'bg-amber-200 text-amber-800';
+    default:
+      return 'bg-gray-200 text-gray-800';
+  }
+};
+
+/**
+ * Format date as relative time (e.g., 2 days ago)
+ */
+const formatRelativeDate = (date: Date): string => {
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays === 0) return 'Today';
+  if (diffInDays === 1) return 'Yesterday';
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+  return `${Math.floor(diffInDays / 365)} years ago`;
+};
+
 interface ApplicationListProps {
   applications: ApplicationWithDocuments[];
-  onDeleteSuccess?: () => void;
 }
 
 /**
- * Component to display a list of job applications
- * Includes status filtering and sorting options
+ * Component for displaying and filtering job applications
  */
-export function ApplicationList({ applications, onDeleteSuccess }: ApplicationListProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+export default function ApplicationList({ applications }: ApplicationListProps) {
+  const [filteredApplications, setFilteredApplications] = useState<ApplicationWithDocuments[]>([]);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<'dateApplied' | 'company' | 'status'>('dateApplied');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
 
   /**
-   * Delete a job application
+   * Update filtered applications when filters or sort options change
    */
-  const deleteApplication = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this application?')) {
-      return;
+  useEffect(() => {
+    let result = [...applications];
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(app => app.status === statusFilter);
     }
     
-    setDeletingId(id);
-    
-    try {
-      const response = await fetch(`/api/applications/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete application');
-      }
-      
-      toast.success('Application deleted successfully');
-      
-      // Refresh the applications list
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
-      } else {
-        router.refresh();
-      }
-    } catch (error) {
-      console.error('Error deleting application:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to delete application');
-    } finally {
-      setDeletingId(null);
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(app => 
+        app.jobTitle.toLowerCase().includes(term) || 
+        app.company.toLowerCase().includes(term) || 
+        (app.location ? app.location.toLowerCase().includes(term) : false)
+      );
     }
-  };
-
-  /**
-   * Format a date in a human-readable format
-   */
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  /**
-   * Get color class for application status
-   */
-  const getStatusColorClass = (status: string) => {
-    const statusColorMap: Record<string, string> = {
-      [ApplicationStatus.WISHLIST]: 'bg-gray-100 text-gray-800',
-      [ApplicationStatus.APPLIED]: 'bg-blue-100 text-blue-800',
-      [ApplicationStatus.PHONE_SCREEN]: 'bg-indigo-100 text-indigo-800',
-      [ApplicationStatus.INTERVIEW]: 'bg-purple-100 text-purple-800',
-      [ApplicationStatus.OFFER]: 'bg-green-100 text-green-800',
-      [ApplicationStatus.REJECTED]: 'bg-red-100 text-red-800',
-      [ApplicationStatus.ACCEPTED]: 'bg-emerald-100 text-emerald-800',
-      [ApplicationStatus.WITHDRAWN]: 'bg-amber-100 text-amber-800',
-    };
     
-    return statusColorMap[status] || 'bg-gray-100 text-gray-800';
-  };
-
-  /**
-   * Filter and sort applications
-   */
-  const filteredAndSortedApplications = applications
-    .filter((app) => statusFilter === 'all' || app.status === statusFilter)
-    .sort((a, b) => {
+    // Apply sorting
+    result.sort((a, b) => {
       if (sortBy === 'dateApplied') {
+        const dateA = new Date(a.dateApplied).getTime();
+        const dateB = new Date(b.dateApplied).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else {
+        const valueA = a[sortBy].toLowerCase();
+        const valueB = b[sortBy].toLowerCase();
         return sortOrder === 'asc' 
-          ? new Date(a.dateApplied).getTime() - new Date(b.dateApplied).getTime()
-          : new Date(b.dateApplied).getTime() - new Date(a.dateApplied).getTime();
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
       }
-      
-      if (sortBy === 'company') {
-        return sortOrder === 'asc'
-          ? a.company.localeCompare(b.company)
-          : b.company.localeCompare(a.company);
-      }
-      
-      if (sortBy === 'status') {
-        return sortOrder === 'asc'
-          ? a.status.localeCompare(b.status)
-          : b.status.localeCompare(a.status);
-      }
-      
-      return 0;
     });
+    
+    setFilteredApplications(result);
+  }, [applications, statusFilter, sortBy, sortOrder, searchTerm]);
 
   /**
-   * Toggle sort order
+   * Toggle sort direction or change sort field
    */
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-  };
-
-  /**
-   * Change sort field
-   */
-  const changeSortBy = (field: 'dateApplied' | 'company' | 'status') => {
+  const handleSort = (field: 'dateApplied' | 'company' | 'status') => {
     if (sortBy === field) {
-      toggleSortOrder();
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       setSortBy(field);
-      setSortOrder('desc');
+      setSortOrder('asc');
     }
   };
 
-  if (applications.length === 0) {
-    return (
-      <Card>
-        <div className="text-center py-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
-          <p className="text-gray-500 mb-4">Get started by adding your first job application.</p>
-          <Link href="/applications/new">
-            <Button>Add Application</Button>
-          </Link>
-        </div>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Filters and Sorting */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          {/* Status Filter */}
-          <div>
-            <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Status
-            </label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as ApplicationStatus | 'all')}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="all">All Statuses</option>
-              {Object.values(ApplicationStatus).map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Sorting */}
-          <div>
-            <label htmlFor="sort-by" className="block text-sm font-medium text-gray-700 mb-1">
-              Sort By
-            </label>
-            <div className="flex items-center space-x-2">
-              <select
-                id="sort-by"
-                value={sortBy}
-                onChange={(e) => changeSortBy(e.target.value as 'dateApplied' | 'company' | 'status')}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              >
-                <option value="dateApplied">Date Applied</option>
-                <option value="company">Company</option>
-                <option value="status">Status</option>
-              </select>
-              <button
-                type="button"
-                onClick={toggleSortOrder}
-                className="p-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
-                title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
-              >
-                {sortOrder === 'asc' ? '↑' : '↓'}
-              </button>
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
+        <Link 
+          href="/applications/new"
+          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+        >
+          <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+          New Application
+        </Link>
+      </div>
+      
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by job title, company, or location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      
+        <FilterBar 
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
+        
+        <div className="mt-4 flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        Job Title
+                      </th>
+                      <th 
+                        scope="col" 
+                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer"
+                        onClick={() => handleSort('company')}
+                      >
+                        Company
+                        {sortBy === 'company' && (
+                          <span className="ml-1">
+                            {sortOrder === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        scope="col" 
+                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer"
+                        onClick={() => handleSort('status')}
+                      >
+                        Status
+                        {sortBy === 'status' && (
+                          <span className="ml-1">
+                            {sortOrder === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        scope="col" 
+                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer"
+                        onClick={() => handleSort('dateApplied')}
+                      >
+                        Date Applied
+                        {sortBy === 'dateApplied' && (
+                          <span className="ml-1">
+                            {sortOrder === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        Documents
+                      </th>
+                      <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                        <span className="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {filteredApplications.length > 0 ? (
+                      filteredApplications.map((application) => (
+                        <tr key={application.id}>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {application.jobTitle}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <div>{application.company}</div>
+                            {application.location && (
+                              <div className="text-xs text-gray-400">{application.location}</div>
+                            )}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm">
+                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusColorClass(application.status)}`}>
+                              {application.status}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <div className="flex items-center">
+                              <CalendarIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                              <span>{formatRelativeDate(application.dateApplied)}</span>
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {application.documents.length} {application.documents.length === 1 ? 'document' : 'documents'}
+                          </td>
+                          <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            <Link
+                              href={`/applications/${application.id}`}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              View<span className="sr-only">, {application.jobTitle}</span>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-3 py-4 text-sm text-gray-500 text-center">
+                          No applications found. Add a new application or adjust your filters.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-          
-          {/* Add Application Button */}
-          <div className="md:ml-auto">
-            <Link href="/applications/new">
-              <Button>Add Application</Button>
-            </Link>
           </div>
         </div>
       </div>
-      
-      {/* Applications List */}
-      <div className="space-y-4">
-        {filteredAndSortedApplications.map(application => (
-          <Card key={application.id} className="hover:shadow-md transition-shadow">
-            <div className="md:flex md:items-start">
-              {/* Application Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center">
-                  <Link 
-                    href={`/applications/${application.id}`}
-                    className="text-lg font-semibold text-gray-900 hover:text-indigo-600"
-                  >
-                    {application.jobTitle}
-                  </Link>
-                  <span 
-                    className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColorClass(application.status)}`}
-                  >
-                    {application.status}
-                  </span>
-                </div>
-                
-                <p className="mt-1 text-sm text-gray-600 flex items-center">
-                  <BuildingOfficeIcon className="h-4 w-4 mr-1 text-gray-400" />
-                  {application.company}
-                </p>
-                
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
-                  {application.location && (
-                    <span className="flex items-center">
-                      <MapPinIcon className="h-4 w-4 mr-1 text-gray-400" />
-                      {application.location}
-                    </span>
-                  )}
-                  
-                  <span className="flex items-center">
-                    <CalendarIcon className="h-4 w-4 mr-1 text-gray-400" />
-                    Applied {formatDate(application.dateApplied)}
-                  </span>
-                  
-                  {application.salary && (
-                    <span className="flex items-center">
-                      <CurrencyDollarIcon className="h-4 w-4 mr-1 text-gray-400" />
-                      {application.salary}
-                    </span>
-                  )}
-                </div>
-                
-                {application.description && (
-                  <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                    {application.description}
-                  </p>
-                )}
-                
-                {/* Documents */}
-                {application.documents.length > 0 && (
-                  <div className="mt-3">
-                    <span className="text-xs font-medium text-gray-500">
-                      Documents: {application.documents.length}
-                    </span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Actions */}
-              <div className="flex mt-4 md:mt-0 space-x-2">
-                <Link href={`/applications/${application.id}/edit`}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<PencilIcon className="h-4 w-4" />}
-                  >
-                    Edit
-                  </Button>
-                </Link>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  leftIcon={<TrashIcon className="h-4 w-4" />}
-                  onClick={() => deleteApplication(application.id)}
-                  isLoading={deletingId === application.id}
-                  disabled={!!deletingId}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Empty State for Filtered Results */}
-      {applications.length > 0 && filteredAndSortedApplications.length === 0 && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">No applications match the selected filters.</p>
-          <Button 
-            variant="outline" 
-            onClick={() => setStatusFilter('all')}
-          >
-            Clear Filters
-          </Button>
-        </div>
-      )}
     </div>
   );
 } 
