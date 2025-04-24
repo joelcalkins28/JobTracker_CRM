@@ -254,23 +254,17 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Consolidate Config and Fix Aliases
+### 2025-04-24: Force Re-apply Alias Fixes
 
 **Files Updated:**
-- `jobtracker/next.config.ts`: Added `serverExternalPackages: ['bcrypt']`. Ensured this is the only active Next.js config.
-- `jobtracker/app/api/auth/[...nextauth]/route.ts`: Updated imports to use standardized `@/lib/` alias.
-- `jobtracker/app/api/auth/google/authorize/route.ts`: Updated imports to use standardized `@/lib/` alias.
-
-**Files Deleted:**
-- `jobtracker/next.config.js`: Removed conflicting Next.js config file.
+- `jobtracker/app/api/auth/[...nextauth]/route.ts`: Re-applied alias fixes and added comment to ensure update.
+- `jobtracker/app/api/auth/google/callback/route.ts`: Re-applied alias fixes and added comment to ensure update.
+- `jobtracker/app/api/auth/google/route.ts`: Re-applied alias fixes and added comment to ensure update.
+- `jobtracker/app/api/auth/google/authorize/route.ts`: Re-applied alias fixes and added comment to ensure update.
 
 **Reasoning:**
-- Resolved conflicts and errors caused by having both `next.config.js` and `next.config.ts`.
-- Corrected Next.js configuration options for v15.
-- Fixed remaining incorrect import aliases (`app/lib/...` instead of `@/lib/...`) identified during local testing.
-- Addresses potential causes for local `Module not found` errors and `Invalid next.config.js` warnings.
-
-**Note:** Persistent local errors related to Prisma client initialization and cache (`.next/cache`) might require manually running `npx prisma generate` and deleting the `.next` folder before `npm run dev`.
+- Vercel build logs indicated that previous commits (`eb80bee`) did not contain the corrected import aliases for these files, despite tool reports.
+- This attempts to force Git to recognize changes in these files, ensuring the correct versions with `@/lib/...` aliases are pushed for deployment.
 
 ## Current Development Plan
 

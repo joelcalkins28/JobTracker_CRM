@@ -1,3 +1,4 @@
+// Re-applying alias fix: 2025-04-24 18:30 UTC
 import NextAuth from 'next-auth';
 import { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
