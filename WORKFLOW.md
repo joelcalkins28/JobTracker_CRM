@@ -254,15 +254,21 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Fix Vercel Build Issues
+### 2025-04-24: Refactor Vercel Build Process
 
 **Files Updated:**
-- `jobtracker/tsconfig.json`: Corrected the path alias for `@/app/components/*` to align with actual usage in import statements.
-- `jobtracker/next.config.js`: Renamed the `serverComponentsExternalPackages` key to `serverExternalPackages` to comply with the latest Next.js configuration standards and resolve build warnings.
+- `jobtracker/package.json`: Removed custom `vercel-fix-build.js` script execution from the `vercel-build` command. Relying on standard `prisma generate && next build`.
 
-**Issues Resolved:**
-- Fixed "Module not found" errors during Vercel builds related to component imports (e.g., `ApplicationForm`, `AppLayout`, `ApplicationDetail`).
-- Resolved the `Invalid next.config.js options detected` warning regarding `serverComponentsExternalPackages`.
+**Files Deleted:**
+- `jobtracker/vercel-fix-build.js`: Removed the main custom build script.
+- `jobtracker/fix-vercel-paths.js`: Removed associated path fixing script.
+- `jobtracker/import-fixer.js`: Removed associated import fixing script.
+- `jobtracker/module-resolver.js`: Removed generated module resolver script.
+- `jobtracker/jsconfig.json`: Removed redundant JS config file (using `tsconfig.json`).
+
+**Reasoning:**
+- The custom build scripts seemed to interfere with or not correctly handle the path alias resolution required by Next.js/Webpack during the Vercel build, leading to persistent "Module not found" errors.
+- Simplifying the build process to use the standard Next.js build command and relying solely on `tsconfig.json` for path aliases is a more robust and conventional approach.
 
 ## Current Development Plan
 
