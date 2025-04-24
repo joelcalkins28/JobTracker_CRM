@@ -1,0 +1,224 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile information
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  password       String
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Google OAuth fields
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+  
+  // Relations
+  contacts       Contact[]
+  applications   JobApplication[]
+  emails         Email[]
+  tasks          Task[]
+  notes          Note[]
+  calendarEvents CalendarEvent[]
+  accounts       Account[]
+  syncLogs       SyncLog[]
+}
+
+// Account model for OAuth providers like Google
+model Account {
+  id                 String  @id @default(uuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// SyncLog model for tracking data synchronization
+model SyncLog {
+  id        String   @id @default(uuid())
+  userId    String
+  service   String   // 'google', 'calendar', 'gmail', etc.
+  syncedAt  DateTime @default(now())
+  details   String?
+  success   Boolean  @default(true)
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Contact model for networking connections
+model Contact {
+  id             String    @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  position       String?
+  linkedInUrl    String?
+  imageUrl       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relationships
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags           Tag[]     @relation("ContactToTag")
+  notes          Note[]
+  emails         Email[]   @relation("ContactToEmail")
+  applications   JobApplication[] @relation("ContactToApplication")
+}
+
+// Tag model for categorizing contacts
+model Tag {
+  id             String    @id @default(uuid())
+  name           String
+  color          String
+  createdAt      DateTime  @default(now())
+  
+  // Relationships
+  contacts       Contact[] @relation("ContactToTag")
+}
+
+// Job Application model for tracking applications
+model JobApplication {
+  id             String    @id @default(uuid())
+  jobTitle       String
+  company        String
+  location       String?
+  description    String?
+  salary         String?
+  applicationUrl String?
+  status         String    // Applied, Interview, Offer, Rejected, etc.
+  dateApplied    DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relationships
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents      Document[]
+  notes          Note[]
+  contacts       Contact[] @relation("ContactToApplication")
+  tasks          Task[]
+  calendarEvents CalendarEvent[]
+}
+
+// Document model for storing resumes, cover letters, etc.
+model Document {
+  id             String    @id @default(uuid())
+  name           String
+  type           String    // Resume, Cover Letter, etc.
+  fileUrl        String
+  createdAt      DateTime  @default(now())
+  
+  // Relationships
+  applicationId  String
+  application    JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+// Email model for Gmail integration
+model Email {
+  id             String    @id @default(uuid())
+  subject        String
+  body           String
+  sender         String
+  recipients     String
+  date           DateTime
+  isRead         Boolean   @default(false)
+  gmailId        String?   @unique
+  threadId       String?
+  
+  // Relationships
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts       Contact[] @relation("ContactToEmail")
+}
+
+// Task model for to-do items
+model Task {
+  id             String    @id @default(uuid())
+  title          String
+  description    String?
+  dueDate        DateTime?
+  completed      Boolean   @default(false)
+  priority       String?   // "high", "medium", "low"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relationships
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationId  String?
+  application    JobApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  // Add this to enable PostgreSQL's full-text search
+  @@index([title, description])
+  @@index([userId])
+  @@index([applicationId])
+}
+
+// Note model for storing notes about contacts or applications
+model Note {
+  id             String    @id @default(uuid())
+  content        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relationships
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  applicationId  String?
+  application    JobApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+}
+
+// Add CalendarEvent model if it doesn't exist
+model CalendarEvent {
+  id               String    @id @default(uuid())
+  calendarEventId  String?   // Google Calendar event ID (optional for local events)
+  calendarId       String?   // Google Calendar ID (optional for local events)
+  title            String
+  startTime        DateTime
+  endTime          DateTime
+  eventType        String?   // Interview, Follow-up, etc.
+  location         String?   // Location of the event
+  description      String?   // Description of the event
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  // Relationships
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationId    String
+  application      JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([applicationId])
+}
