@@ -14,7 +14,7 @@ import {
 import { toast } from 'react-hot-toast';
 import Card from '../common/Card';
 import Button from '../common/Button';
-import { ApplicationWithDocuments, ApplicationStatus } from '@/app/lib/types';
+import { ApplicationWithDocuments, ApplicationStatus } from '@/lib/types';
 
 /**
  * Props for the ApplicationList component

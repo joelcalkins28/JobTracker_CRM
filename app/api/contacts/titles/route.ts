@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/app/lib/db';
-import { apiResponse } from '@/app/lib/utils/api';
-import { getAuthenticatedUser } from '@/app/lib/utils/auth';
+import prisma from '@/lib/db';
+import { apiResponse } from '@/lib/utils/api';
+import { getAuthenticatedUser } from '@/lib/utils/auth';
 
 /**
  * GET /api/contacts/titles - Retrieve all unique job titles from user's contacts

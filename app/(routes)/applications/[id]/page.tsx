@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { ApplicationDetail } from '@/app/components/applications/ApplicationDetail';
-import { ApplicationWithDocuments, ContactWithTags } from '@/app/lib/types';
-import AppLayout from '@/app/components/common/AppLayout';
+import { ApplicationDetail } from '@/components/applications/ApplicationDetail';
+import { ApplicationWithDocuments, ContactWithTags } from '@/lib/types';
+import AppLayout from '@/components/common/AppLayout';
 
 /**
  * Application detail page component

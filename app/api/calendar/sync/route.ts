@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import { verifyToken } from '@/app/lib/auth';
-import { prisma } from '@/app/lib/prisma';
-import { getCalendarClient } from '@/app/lib/google';
-import { apiSuccess, apiError } from '@/app/lib/utils/api';
+import { verifyToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { getCalendarClient } from '@/lib/google';
+import { apiSuccess, apiError } from '@/lib/utils/api';
 
 /**
  * Type for calendar event with application

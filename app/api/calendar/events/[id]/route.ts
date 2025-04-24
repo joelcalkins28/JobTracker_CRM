@@ -4,9 +4,9 @@ import {
   updateCalendarEvent, 
   deleteCalendarEvent,
   formatApplicationEvent
-} from '@/app/lib/calendar';
-import { prisma } from '@/app/lib/prisma';
-import { getCurrentUser } from '@/app/lib/auth';
+} from '@/lib/calendar';
+import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
 
 /**
  * GET /api/calendar/events/:id

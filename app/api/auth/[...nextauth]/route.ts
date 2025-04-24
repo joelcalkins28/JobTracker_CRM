@@ -3,8 +3,8 @@ import { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { prisma } from '@/app/lib/prisma';
-import { comparePasswords } from '@/app/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { comparePasswords } from '@/lib/auth';
 
 /**
  * NextAuth configuration options

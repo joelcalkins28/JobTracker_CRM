@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import AppLayout from '@/app/components/common/AppLayout';
-import Card from '@/app/components/common/Card';
-import Button from '@/app/components/common/Button';
+import AppLayout from '@/components/common/AppLayout';
+import Card from '@/components/common/Card';
+import Button from '@/components/common/Button';
 import { ArrowLeftIcon, PencilIcon, TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 

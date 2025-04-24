@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/app/lib/db';
-import { apiResponse } from '@/app/lib/utils/api';
-import { getAuthenticatedUser } from '@/app/lib/utils/auth';
-import { DocumentType } from '@/app/lib/types';
+import { db } from '@/lib/db';
+import { apiResponse } from '@/lib/utils/api';
+import { getAuthenticatedUser } from '@/lib/utils/auth';
+import { DocumentType } from '@/lib/types';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';

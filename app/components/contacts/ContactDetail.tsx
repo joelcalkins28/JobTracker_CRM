@@ -16,7 +16,7 @@ import {
 import { toast } from 'react-hot-toast';
 import Card from '../common/Card';
 import Button from '../common/Button';
-import { ContactWithTags } from '@/app/lib/types';
+import { ContactWithTags } from '@/lib/types';
 
 /**
  * ContactDetail properties interface

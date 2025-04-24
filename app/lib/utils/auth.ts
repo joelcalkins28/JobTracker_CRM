@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/app/lib/db';
-import { SafeUser } from '@/app/lib/types';
+import { db } from '@/lib/db';
+import { SafeUser } from '@/lib/types';
 
 /**
  * Get the currently authenticated user from the request

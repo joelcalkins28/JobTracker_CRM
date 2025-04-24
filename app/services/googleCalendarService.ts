@@ -1,6 +1,6 @@
 import { google, calendar_v3 } from 'googleapis';
-import { prisma } from '@/app/lib/prisma';
-import { getCurrentUser } from '@/app/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
 /**

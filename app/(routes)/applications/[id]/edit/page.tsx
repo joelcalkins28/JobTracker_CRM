@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { ApplicationForm } from '@/app/components/applications/ApplicationForm';
-import { ApplicationFormData } from '@/app/lib/types';
-import AppLayout from '@/app/components/common/AppLayout';
+import { ApplicationForm } from '@/components/applications/ApplicationForm';
+import { ApplicationFormData } from '@/lib/types';
+import AppLayout from '@/components/common/AppLayout';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 

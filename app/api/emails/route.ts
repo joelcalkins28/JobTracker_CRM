@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/app/lib/auth';
-import { prisma } from '@/app/lib/prisma';
-import { fetchEmails, sendEmail, getEmailThreads, getGmailLabels } from '@/app/lib/gmail';
+import { getCurrentUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { fetchEmails, sendEmail, getEmailThreads, getGmailLabels } from '@/lib/gmail';
 
 /**
  * GET /api/emails

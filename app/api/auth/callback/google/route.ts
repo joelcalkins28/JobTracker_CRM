@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { oauth2Client } from '@/app/lib/google';
-import { prisma } from '@/app/lib/prisma';
-import { generateToken } from '@/app/lib/auth';
+import { oauth2Client } from '@/lib/google';
+import { prisma } from '@/lib/prisma';
+import { generateToken } from '@/lib/auth';
 
 /**
  * GET handler for Google OAuth callback
