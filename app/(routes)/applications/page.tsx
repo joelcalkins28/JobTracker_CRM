@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AppLayout from '@/app/components/common/AppLayout';
-import { ApplicationList } from '@/app/components/applications/ApplicationList';
-import { Button } from '@/app/components/ui/button';
-import { FilterBar } from '@/app/components/applications/FilterBar';
-import { Application } from '@prisma/client';
-import { PlusCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import AppLayout from '@/components/common/AppLayout';
+import { ApplicationList } from '@/components/applications/ApplicationList';
+import { Button } from '@/components/ui/button';
+import { FilterBar } from '@/components/applications/FilterBar';
+import { ApplicationWithDocuments, ApplicationStatus } from '@/lib/types';
+import { apiGet } from '@/lib/utils/api';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { ApplicationWithDocuments } from 'app/lib/types';
 
 /**
  * Applications list page component

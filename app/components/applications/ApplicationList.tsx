@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { CalendarIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { ApplicationWithDocuments, ApplicationStatus } from '@/app/lib/types';
+import { CalendarIcon, PlusIcon, PencilIcon, TrashIcon, EyeIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-hot-toast';
+import { ApplicationWithDocuments, ApplicationStatus } from '@/lib/types';
 import FilterBar from './FilterBar';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 
 /**
  * Get CSS class based on application status

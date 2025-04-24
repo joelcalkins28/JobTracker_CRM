@@ -254,21 +254,22 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Refactor Vercel Build Process
+### 2025-04-24: Standardize Path Aliases
 
 **Files Updated:**
-- `jobtracker/package.json`: Removed custom `vercel-fix-build.js` script execution from the `vercel-build` command. Relying on standard `prisma generate && next build`.
-
-**Files Deleted:**
-- `jobtracker/vercel-fix-build.js`: Removed the main custom build script.
-- `jobtracker/fix-vercel-paths.js`: Removed associated path fixing script.
-- `jobtracker/import-fixer.js`: Removed associated import fixing script.
-- `jobtracker/module-resolver.js`: Removed generated module resolver script.
-- `jobtracker/jsconfig.json`: Removed redundant JS config file (using `tsconfig.json`).
+- `jobtracker/tsconfig.json`: Explicitly set `baseUrl: "."`. Standardized path aliases to use `@/components/*` and `@/lib/*` instead of `@/app/components/*` and `@/app/lib/*`. Removed redundant `@/app/*` alias. Added `@/prismaClient` alias.
+- `jobtracker/app/(routes)/applications/page.tsx`: Updated imports to use new `@/components/` and `@/lib/` aliases.
+- `jobtracker/app/(routes)/applications/[id]/page.tsx`: Updated imports to use new `@/components/` and `@/lib/` aliases.
+- `jobtracker/app/(routes)/applications/new/page.tsx`: Updated imports to use new `@/components/` alias.
+- `jobtracker/app/(routes)/applications/[id]/edit/page.tsx`: Updated imports to use new `@/components/` and `@/lib/` aliases.
+- `jobtracker/app/components/applications/ApplicationList.tsx`: Updated imports to use new `@/components/` and `@/lib/` aliases.
+- `jobtracker/package.json` & `package-lock.json`: Added `date-fns` dependency.
 
 **Reasoning:**
-- The custom build scripts seemed to interfere with or not correctly handle the path alias resolution required by Next.js/Webpack during the Vercel build, leading to persistent "Module not found" errors.
-- Simplifying the build process to use the standard Next.js build command and relying solely on `tsconfig.json` for path aliases is a more robust and conventional approach.
+- Standardizing path aliases to a more common convention (`@/components/*`, `@/lib/*`) reduces potential ambiguity for build tools.
+- Explicitly setting `baseUrl` is best practice.
+- Ensures consistency across the codebase for path resolution.
+- This attempts to resolve the persistent "Module not found: Can't resolve 'app/...'" errors during Vercel builds by ensuring the aliases are correctly defined and used in a standard way.
 
 ## Current Development Plan
 
