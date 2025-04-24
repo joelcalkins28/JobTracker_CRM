@@ -254,15 +254,15 @@ This document tracks all changes made to the JobTracker CRM project over time.
   - Added GitHub workflow documentation
   - Updated project status document with version control information
 
-### 2025-04-24: Attempt Vercel Cache Bust
+### 2025-04-24: Use Relative Paths in Auth Routes
 
 **Files Updated:**
-- `jobtracker/package.json`: Added a timestamped echo command to the `vercel-build` script.
+- `jobtracker/app/api/auth/google/callback/route.ts`: Recreated file using relative paths (`../../../../lib/...`) for imports instead of aliases.
+- `jobtracker/app/api/auth/google/route.ts`: Recreated file using relative paths (`../../../lib/...`) for imports instead of aliases.
 
 **Reasoning:**
-- Despite the latest commit containing verified code fixes for auth routes, Vercel builds are still failing with errors indicating the old, broken code is being used.
-- This points to a potential persistent caching issue on Vercel's side.
-- Modifying the build script itself is an attempt to invalidate Vercel's build step cache and force it to use the actual latest code from the commit.
+- Persistent Vercel build failures ("Unterminated string constant", incorrect paths) suggest a fundamental issue with either alias resolution (`@/lib/...`) within API routes in the Vercel environment or file state consistency between Git and Vercel build.
+- Switching to explicit relative paths for these specific problematic routes removes alias resolution as a variable for these files, helping to isolate the root cause.
 
 ## Current Development Plan
 
