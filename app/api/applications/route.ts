@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/db';
-import { apiResponse } from '@/lib/utils/api';
-import { getAuthenticatedUser } from '@/lib/utils/auth';
-import { ApplicationStatus } from '@/lib/types';
+import prisma from 'app/lib/db';
+import { apiResponse } from 'app/lib/utils/api';
+import { getAuthenticatedUser } from 'app/lib/utils/auth';
+import { ApplicationStatus } from 'app/lib/types';
 
 /**
  * GET /api/applications - Retrieve all job applications for the authenticated user

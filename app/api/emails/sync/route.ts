@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import { verifyToken } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { fetchEmails } from '@/lib/gmail';
-import { apiSuccess, apiError } from '@/lib/utils/api';
+import { verifyToken } from 'app/lib/auth';
+import { prisma } from 'app/lib/prisma';
+import { fetchEmails } from 'app/lib/gmail';
+import { apiSuccess, apiError } from 'app/lib/utils/api';
 
 /**
  * POST handler to sync emails from Gmail

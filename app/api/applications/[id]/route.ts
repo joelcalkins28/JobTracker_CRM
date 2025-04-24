@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/db';
-import { apiResponse } from '@/lib/utils/api';
-import { getAuthenticatedUser } from '@/lib/utils/auth';
+import { db } from 'app/lib/db';
+import { apiResponse } from 'app/lib/utils/api';
+import { getAuthenticatedUser } from 'app/lib/utils/auth';
 
 /**
  * GET /api/applications/[id] - Retrieve a single job application by ID

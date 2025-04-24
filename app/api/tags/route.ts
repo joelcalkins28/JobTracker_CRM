@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/db';
-import { apiResponse } from '@/lib/utils/api';
-import { getAuthenticatedUser } from '@/lib/utils/auth';
+import prisma from 'app/lib/db';
+import { apiResponse } from 'app/lib/utils/api';
+import { getAuthenticatedUser } from 'app/lib/utils/auth';
 
 /**
  * GET /api/tags - Retrieve all tags for the authenticated user

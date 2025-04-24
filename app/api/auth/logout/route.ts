@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import { apiSuccess } from '@/lib/utils/api';
+import { apiSuccess } from 'app/lib/utils/api';
 
 /**
  * POST handler for user logout

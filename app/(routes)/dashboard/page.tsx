@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AppLayout from '@/components/common/AppLayout';
-import Card from '@/components/common/Card';
-import Button from '@/components/common/Button';
+import AppLayout from 'app/components/common/AppLayout';
+import Card from 'app/components/common/Card';
+import Button from 'app/components/common/Button';
 import toast from 'react-hot-toast';
-import { ApplicationStatus } from '@/lib/types';
+import { ApplicationStatus } from 'app/lib/types';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
 
 /**

@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma';
-import { verifyToken } from '@/lib/auth';
-import { apiSuccess, apiError, handleApiError } from '@/lib/utils/api';
+import { prisma } from 'app/lib/prisma';
+import { verifyToken } from 'app/lib/auth';
+import { apiSuccess, apiError, handleApiError } from 'app/lib/utils/api';
 
 /**
  * GET handler to retrieve the current authenticated user

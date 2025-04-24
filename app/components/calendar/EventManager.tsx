@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
+import { Button } from 'app/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from 'app/components/ui/card';
+import { Input } from 'app/components/ui/input';
+import { Label } from 'app/components/ui/label';
+import { Textarea } from 'app/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import { Calendar } from 'app/components/ui/calendar';
 import { format } from 'date-fns';
 import { Loader2, Plus, Trash, Calendar as CalendarIcon, RefreshCw, ExternalLink } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from 'app/components/ui/popover';
+import { cn } from 'app/lib/utils';
+import { Badge } from 'app/components/ui/badge';
 import { toast } from 'sonner';
-import { Tooltip } from '@/components/ui/tooltip';
+import { Tooltip } from 'app/components/ui/tooltip';
 
 /**
  * EventManager component for managing calendar events for a job application

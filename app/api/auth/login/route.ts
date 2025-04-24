@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { comparePasswords, generateToken } from '@/lib/auth';
-import { apiSuccess, apiError, handleApiError } from '@/lib/utils/api';
+import { prisma } from 'app/lib/prisma';
+import { comparePasswords, generateToken } from 'app/lib/auth';
+import { apiSuccess, apiError, handleApiError } from 'app/lib/utils/api';
 
 /**
  * POST handler for user login

@@ -19,7 +19,7 @@ import {
 import { toast } from 'react-hot-toast';
 import Card from '../common/Card';
 import Button from '../common/Button';
-import { ApplicationWithDocuments, ApplicationStatus, ContactWithTags } from '@/lib/types';
+import { ApplicationWithDocuments, ApplicationStatus, ContactWithTags } from 'app/lib/types';
 
 /**
  * Props for the ApplicationDetail component

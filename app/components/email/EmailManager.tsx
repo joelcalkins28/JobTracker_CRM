@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { Send as SendIcon, Refresh as RefreshIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/useToast';
+import { useToast } from 'app/hooks/useToast';
 
 /**
  * EmailManager component for managing emails

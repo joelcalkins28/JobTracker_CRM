@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { ApplicationDetail } from '@/components/applications/ApplicationDetail';
-import { ApplicationWithDocuments, ContactWithTags } from '@/lib/types';
-import AppLayout from '@/components/common/AppLayout';
+import { ApplicationDetail } from '../../../../components/applications/ApplicationDetail';
+import { ApplicationWithDocuments, ContactWithTags } from '../../../../lib/types';
+import AppLayout from '../../../../components/common/AppLayout';
+import Link from 'next/link';
+import { ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 /**
  * Application detail page component

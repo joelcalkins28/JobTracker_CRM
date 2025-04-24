@@ -12,6 +12,17 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'localhost:3001']
     }
+  },
+  
+  // Override webpack config to ensure proper resolution of imports
+  webpack: (config, { isServer }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': '.',
+      'app': './app',
+    };
+    
+    return config;
   }
 }
 

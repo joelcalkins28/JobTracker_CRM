@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 import { PlusIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { ContactWithTags } from '@/lib/types';
+import { ContactWithTags } from 'app/lib/types';
 import Button from '../common/Button';
 
 /**

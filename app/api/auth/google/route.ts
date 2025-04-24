@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthUrl } from "@/lib/google";
-import { prisma } from "@/lib/prisma";
-import { generateToken } from "@/lib/auth";
+import { getAuthUrl } from 'app/lib/google";
+import { prisma } from 'app/lib/prisma";
+import { generateToken } from 'app/lib/auth";
 import { cookies } from "next/headers";
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser } from 'app/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

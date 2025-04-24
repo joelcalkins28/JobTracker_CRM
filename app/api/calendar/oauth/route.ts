@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthUrl } from '@/lib/google';
-import { getCurrentUser } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getAuthUrl } from 'app/lib/google';
+import { getCurrentUser } from 'app/lib/auth';
+import prisma from 'app/lib/prisma';
 import { google } from 'googleapis';
 
 const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/calendar/oauth/callback';

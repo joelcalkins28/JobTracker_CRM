@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import TaskList from '@/components/tasks/TaskList';
-import AppLayout from '@/components/common/AppLayout';
+import TaskList from 'app/components/tasks/TaskList';
+import AppLayout from 'app/components/common/AppLayout';
 
 /**
  * Tasks page component

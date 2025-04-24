@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getAuthUrl } from '@/lib/google';
+import { getAuthUrl } from 'app/lib/google';
 
 /**
  * Google Sign-In Button component

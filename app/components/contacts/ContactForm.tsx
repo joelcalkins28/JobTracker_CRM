@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Input from '../common/Input';
 import Button from '../common/Button';
-import { ContactFormData } from '@/lib/types';
+import { ContactFormData } from 'app/lib/types';
 import { TagSelector } from './TagSelector';
 
 /**

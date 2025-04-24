@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { generateToken } from "@/lib/auth";
+import { prisma } from 'app/lib/prisma";
+import { generateToken } from 'app/lib/auth";
 
 /**
  * Handles the callback from Google OAuth and processes the authorization code

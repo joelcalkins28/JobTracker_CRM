@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/shadcn-tooltip';
+} from 'app/components/ui/shadcn-tooltip';
 
 interface TooltipProps {
   children: React.ReactNode;

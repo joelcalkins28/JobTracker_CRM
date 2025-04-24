@@ -1,7 +1,7 @@
 'use client';
 
-import TaskForm from '@/components/tasks/TaskForm';
-import AppLayout from '@/components/common/AppLayout';
+import TaskForm from 'app/components/tasks/TaskForm';
+import AppLayout from 'app/components/common/AppLayout';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
