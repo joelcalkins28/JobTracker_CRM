@@ -9,10 +9,15 @@ console.log('🔧 Running Vercel build fixes...');
 try {
   // Create a module resolver file for Vercel
   const resolverContent = `
+  const path = require('path');
+  
   module.exports = {
     alias: {
       '@': path.resolve(__dirname),
-      'app': path.resolve(__dirname, 'app'),
+      '@/app': path.resolve(__dirname, 'app'),
+      '@/components': path.resolve(__dirname, 'app/components'),
+      '@/lib': path.resolve(__dirname, 'app/lib'),
+      'app': path.resolve(__dirname),
     }
   };
   `;

@@ -14,17 +14,20 @@ function processFile(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
     
+    // Fix @/app/ paths first to ensure we don't add unnecessary 'app/' prefixes
+    content = content.replace(/from\s+['"]@\/app\/(components|lib|hooks)/g, 'from \'@/$1');
+    
     // Replace imports from @/components to app/components
-    content = content.replace(/from\s+['"']@\/components\//g, 'from \'app/components/');
+    content = content.replace(/from\s+['"]@\/components\//g, 'from \'app/components/');
     
     // Replace imports from @/lib to app/lib
-    content = content.replace(/from\s+['"']@\/lib\//g, 'from \'app/lib/');
+    content = content.replace(/from\s+['"]@\/lib\//g, 'from \'app/lib/');
     
     // Replace imports from @/hooks to app/hooks
-    content = content.replace(/from\s+['"']@\/hooks\//g, 'from \'app/hooks/');
+    content = content.replace(/from\s+['"]@\/hooks\//g, 'from \'app/hooks/');
     
-    // Replace other imports from @/ to app/
-    content = content.replace(/from\s+['"']@\//g, 'from \'app/');
+    // Replace other imports from @/ to app/ ONLY if not already referring to app/
+    content = content.replace(/from\s+['"]@\/(?!app\/)(.*)/g, 'from \'app/$1');
     
     // Write updated content back to the file
     fs.writeFileSync(filePath, content);

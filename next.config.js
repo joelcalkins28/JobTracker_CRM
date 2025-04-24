@@ -1,26 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // External packages that need Node.js compatibility
-  serverExternalPackages: ['bcrypt'],
+  serverComponentsExternalPackages: ['bcrypt'],
   
-  // Root config options (moved from experimental)
+  // Root config options
   skipMiddlewareUrlNormalize: true,
   skipTrailingSlashRedirect: true,
   
   // Experimental features
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'localhost:3001']
+      allowedOrigins: ['localhost:3000']
     }
   },
   
-  // Override webpack config to ensure proper resolution of imports
+  // Handle module resolution for app directory
   webpack: (config, { isServer }) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': '.',
-      'app': './app',
-    };
+    if (!isServer) {
+      // Fix module resolution in client-side code
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+      };
+    }
     
     return config;
   }

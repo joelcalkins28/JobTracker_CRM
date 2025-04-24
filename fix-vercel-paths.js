@@ -31,8 +31,8 @@ try {
       content = content.replace(/from\s+['"]\.\.\/\.\.\/\.\.\/\.\.\/(components|lib)/g, 
         "from '../../../..$1");
         
-      // Fix app/ absolute paths
-      content = content.replace(/from\s+['"]app\/(components|lib)/g, 
+      // Fix @/app/ paths to @/ to prevent double app prefix
+      content = content.replace(/from\s+['"]@\/app\/(components|lib)/g, 
         "from '@/$1");
       
       // Write fixed content back
